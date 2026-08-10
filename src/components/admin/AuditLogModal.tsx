@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, History, Shield, CheckCircle2, XCircle, Edit3, Trash2 } from 'lucide-react';
 import { AuditLog } from '../../lib/adminStore';
+import { ModalPortal } from '../ui/ModalPortal';
 
 interface AuditLogModalProps {
   logs: AuditLog[];
@@ -19,13 +20,14 @@ export const AuditLogModal: React.FC<AuditLogModalProps> = ({ logs, onClose }) =
   }, [onClose]);
 
   return (
-    <AnimatePresence>
-      <div 
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto gpu-accelerate"
-      >
+    <ModalPortal>
+      <AnimatePresence>
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto"
+        >
         <motion.div 
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -126,5 +128,6 @@ export const AuditLogModal: React.FC<AuditLogModalProps> = ({ logs, onClose }) =
         </motion.div>
       </div>
     </AnimatePresence>
-  );
+  </ModalPortal>
+);
 };

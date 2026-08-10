@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { TeamRecord } from '../../lib/adminStore';
 import { openSingleTeamPDF } from '../../lib/exportUtils';
+import { ModalPortal } from '../ui/ModalPortal';
 
 interface TeamDetailModalProps {
   team: TeamRecord;
@@ -54,13 +55,14 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <div 
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto gpu-accelerate"
-      >
+    <ModalPortal>
+      <AnimatePresence>
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto"
+        >
         <motion.div 
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -347,85 +349,90 @@ export const TeamDetailModal: React.FC<TeamDetailModalProps> = ({
           {/* Delete Confirmation Modal Overlay */}
           <AnimatePresence>
             {showDeleteConfirm && (
-              <div 
-                onClick={(e) => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl gpu-accelerate"
-              >
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="max-w-md w-full bg-[#07091C]/95 border border-red-500/50 rounded-[28px] p-6 text-center space-y-5 shadow-[0_32px_80px_rgba(239,68,68,0.35)] relative overflow-hidden backdrop-blur-2xl"
+              <ModalPortal>
+                <div 
+                  onClick={(e) => { if (e.target === e.currentTarget) setShowDeleteConfirm(false); }}
+                  className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
                 >
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1.5px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent blur-[0.5px]" />
-                  <div className="w-14 h-14 rounded-full bg-red-500/15 border-2 border-red-500/40 text-red-400 flex items-center justify-center mx-auto shadow-[0_0_24px_rgba(239,68,68,0.4)]">
-                    <ShieldAlert className="w-7 h-7" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <h3 className="text-xl font-bold font-space text-white">Delete Team Registration?</h3>
-                    <p className="text-xs font-mono text-white/70 leading-relaxed">
-                      Are you sure you want to permanently purge team <strong className="text-white">{team.teamName}</strong> ({team.id}) from the database? This action is non-reversible.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowDeleteConfirm(false)}
-                      className="flex-1 h-[46px] rounded-full border border-white/20 text-white font-space text-xs font-bold hover:bg-white/5 cursor-pointer transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowDeleteConfirm(false);
-                        onDelete(team.id);
-                      }}
-                      className="flex-1 h-[46px] rounded-full bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-space text-xs font-bold cursor-pointer shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all active:scale-[0.98]"
-                    >
-                      Delete Registration
-                    </button>
-                  </div>
-                </motion.div>
-              </div>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="max-w-md w-full bg-[#07091C]/95 border border-red-500/50 rounded-[28px] p-6 text-center space-y-5 shadow-[0_32px_80px_rgba(239,68,68,0.35)] relative overflow-hidden backdrop-blur-2xl my-auto max-h-[90vh] overflow-y-auto"
+                  >
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1.5px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent blur-[0.5px]" />
+                    <div className="w-14 h-14 rounded-full bg-red-500/15 border-2 border-red-500/40 text-red-400 flex items-center justify-center mx-auto shadow-[0_0_24px_rgba(239,68,68,0.4)] shrink-0">
+                      <ShieldAlert className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <h3 className="text-xl font-bold font-space text-white">Delete Team Registration?</h3>
+                      <p className="text-xs font-mono text-white/70 leading-relaxed">
+                        Are you sure you want to permanently purge team <strong className="text-white">{team.teamName}</strong> ({team.id}) from the database? This action is non-reversible.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="flex-1 h-[46px] rounded-full border border-white/20 text-white font-space text-xs font-bold hover:bg-white/5 cursor-pointer transition-all flex items-center justify-center"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowDeleteConfirm(false);
+                          onDelete(team.id);
+                        }}
+                        className="flex-1 h-[46px] rounded-full bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-space text-xs font-bold cursor-pointer shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all active:scale-[0.98] flex items-center justify-center"
+                      >
+                        Delete Registration
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              </ModalPortal>
             )}
           </AnimatePresence>
 
           {/* Full Image Zoom Lightbox Modal */}
           <AnimatePresence>
             {isZoomOpen && (
-              <div 
-                onClick={() => setIsZoomOpen(false)}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl cursor-zoom-out gpu-accelerate"
-              >
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center space-y-3"
+              <ModalPortal>
+                <div 
+                  onClick={() => setIsZoomOpen(false)}
+                  className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl cursor-zoom-out"
                 >
-                  <button
-                    type="button"
-                    onClick={() => setIsZoomOpen(false)}
-                    className="absolute -top-12 right-0 text-white bg-white/20 hover:bg-white/40 p-2 rounded-full cursor-pointer transition-all min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center space-y-3 my-auto"
                   >
-                    <X className="w-6 h-6" />
-                  </button>
-                  <img 
-                    src={team.screenshotUrl} 
-                    alt="Payment Receipt Zoom" 
-                    className="max-w-full max-h-[80vh] rounded-2xl object-contain border border-white/20 shadow-[0_0_48px_rgba(83,107,255,0.3)]"
-                  />
-                  <div className="text-center font-mono text-xs text-white/80 bg-black/80 px-4 py-2 rounded-full border border-white/10">
-                    Transaction ID: <span className="text-[#8DA2FF] font-bold">{team.transactionId}</span> • Fee Amount: <span className="text-emerald-400 font-bold">₹{team.amount}</span>
-                  </div>
-                </motion.div>
-              </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsZoomOpen(false)}
+                      className="absolute -top-12 right-0 text-white bg-white/20 hover:bg-white/40 p-2 rounded-full cursor-pointer transition-all min-w-[40px] min-h-[40px] flex items-center justify-center z-10"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                    <img 
+                      src={team.screenshotUrl} 
+                      alt="Payment Receipt Zoom" 
+                      className="max-w-full max-h-[80vh] rounded-2xl object-contain border border-white/20 shadow-[0_0_48px_rgba(83,107,255,0.3)]"
+                    />
+                    <div className="text-center font-mono text-xs text-white/80 bg-black/80 px-4 py-2 rounded-full border border-white/10">
+                      Transaction ID: <span className="text-[#8DA2FF] font-bold">{team.transactionId}</span> • Fee Amount: <span className="text-emerald-400 font-bold">₹{team.amount}</span>
+                    </div>
+                  </motion.div>
+                </div>
+              </ModalPortal>
             )}
           </AnimatePresence>
 
         </motion.div>
       </div>
     </AnimatePresence>
-  );
+  </ModalPortal>
+);
 };

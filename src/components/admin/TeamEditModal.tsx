@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Save, Edit3, User, Hash, Phone, Building2 } from 'lucide-react';
 import { TeamRecord } from '../../lib/adminStore';
 import { MemberData } from '../../types/registration';
+import { ModalPortal } from '../ui/ModalPortal';
 
 interface TeamEditModalProps {
   team: TeamRecord;
@@ -47,13 +48,14 @@ export const TeamEditModal: React.FC<TeamEditModalProps> = ({ team, onClose, onS
   };
 
   return (
-    <AnimatePresence>
-      <div 
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto gpu-accelerate"
-      >
+    <ModalPortal>
+      <AnimatePresence>
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto"
+        >
         <motion.div 
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -233,6 +235,7 @@ export const TeamEditModal: React.FC<TeamEditModalProps> = ({ team, onClose, onS
         </motion.div>
       </div>
     </AnimatePresence>
-  );
+  </ModalPortal>
+);
 };
 

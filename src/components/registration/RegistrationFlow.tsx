@@ -7,7 +7,8 @@ import {
   Users, 
   CreditCard, 
   CheckCircle2, 
-  ShieldCheck 
+  ShieldCheck,
+  AlertCircle 
 } from 'lucide-react';
 import { MemberData, TeamRegistrationState, RegistrationStep } from '../../types/registration';
 import { MemberCard } from './MemberCard';
@@ -24,10 +25,10 @@ interface RegistrationFlowProps {
 }
 
 const INITIAL_MEMBERS: MemberData[] = [
-  { id: '1', role: 'Leader', name: '', registerNumber: '', phone: '', year: '3rd Year', department: 'CSE', section: '24S01', residenceType: 'Day Scholar' },
-  { id: '2', role: 'Member 1', name: '', registerNumber: '', phone: '', year: '3rd Year', department: 'CSE', section: '24S01', residenceType: 'Day Scholar' },
-  { id: '3', role: 'Member 2', name: '', registerNumber: '', phone: '', year: '3rd Year', department: 'CSE', section: '24S01', residenceType: 'Day Scholar' },
-  { id: '4', role: 'Member 3 (Optional)', isOptional: true, name: '', registerNumber: '', phone: '', year: '3rd Year', department: 'CSE', section: '24S01', residenceType: 'Day Scholar' },
+  { id: '1', role: 'Leader', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
+  { id: '2', role: 'Member 1', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
+  { id: '3', role: 'Member 2', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
+  { id: '4', role: 'Member 3 (Optional)', isOptional: true, name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
 ];
 
 export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
@@ -45,10 +46,32 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return {
-          ...parsed,
-          payment: { ...parsed.payment, screenshotFile: null, screenshotPreview: null }
-        };
+        if (Array.isArray(parsed.members) && parsed.members.length > 0) {
+          let list = [...parsed.members];
+          while (list.length < 4) {
+            const idx = list.length;
+            list.push({ ...INITIAL_MEMBERS[idx] });
+          }
+          list = list.slice(0, 4).map((m: any, idx: number) => ({
+            ...m,
+            id: String(idx + 1),
+            isOptional: idx === 3,
+            role: idx === 0 ? 'Leader' : idx === 3 ? 'Member 3 (Optional)' : `Member ${idx}`,
+            residenceType: m.residenceType || 'Day Scholar',
+            name: m.name || '',
+            registerNumber: m.registerNumber || '',
+            phone: m.phone || '',
+            year: m.year || '',
+            department: m.department || '',
+            section: m.section || ''
+          }));
+
+          return {
+            ...parsed,
+            members: list,
+            payment: { ...parsed.payment, screenshotFile: null, screenshotPreview: null }
+          };
+        }
       } catch (e) {
         // ignore error
       }
@@ -128,41 +151,108 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   // Check if member is complete (all required fields filled)
   const isMemberComplete = useCallback((m: MemberData) => {
     if (!m) return false;
+    const cleanPhone = (m.phone || '').replace(/\D/g, '');
     const basic = 
       Boolean((m.name || '').trim()) && 
       Boolean((m.registerNumber || '').trim()) && 
-      Boolean((m.phone || '').trim()) && 
+      cleanPhone.length === 10 && 
       Boolean((m.year || '').trim()) && 
       Boolean((m.department || '').trim()) &&
       Boolean((m.section || '').trim());
       
-    const hostel = m.residenceType === 'Day Scholar' || 
-      (Boolean((m.hostelName || '').trim()) &&
-       Boolean((m.roomNumber || '').trim()) &&
-       Boolean((m.wardenName || '').trim()) &&
-       Boolean((m.wardenPhone || '').trim()));
-    return basic && hostel;
+    if (!basic) return false;
+
+    if (m.residenceType === 'Hosteller') {
+      const cleanWardenPhone = (m.wardenPhone || '').replace(/\D/g, '');
+      const hostel = 
+        Boolean((m.hostelName || '').trim()) &&
+        Boolean((m.roomNumber || '').trim()) &&
+        Boolean((m.wardenName || '').trim()) &&
+        cleanWardenPhone.length === 10;
+      return hostel;
+    }
+
+    return true;
   }, []);
 
   const requiredMembers = useMemo(() => (registrationState.members || []).slice(0, 3), [registrationState.members]);
-  const optionalMember = (registrationState.members || [])[3] || { id: '4', role: 'Member 3 (Optional)', isOptional: true, name: '', registerNumber: '', phone: '', year: '3rd Year', department: 'CSE', section: '24S01', residenceType: 'Day Scholar' };
+  const optionalMember = useMemo(() => (registrationState.members || [])[3] || INITIAL_MEMBERS[3], [registrationState.members]);
 
-  // 1. Leader + 2 members (3 members minimum) MUST all be completed
+  // 1. Leader + Member 1 + Member 2 (3 members minimum) MUST all be completed
   const requiredMembersComplete = useMemo(() => requiredMembers.every(isMemberComplete), [requiredMembers, isMemberComplete]);
 
-  // 2. Member 3 (Optional): If any input is started, it must be fully completed. If empty, it's valid.
-  const isOptionalTouched = Boolean(
-    (optionalMember?.name || '').trim() || 
-    (optionalMember?.registerNumber || '').trim() || 
-    (optionalMember?.phone || '').trim()
-  );
-  const isOptionalMemberValid = !isOptionalTouched || isMemberComplete(optionalMember);
+  // 2. Member 3 (Optional): Touched ONLY if user entered Name, Reg Number, or Phone.
+  const isOptionalTouched = useMemo(() => Boolean(
+    (optionalMember?.name || '').trim() !== '' || 
+    (optionalMember?.registerNumber || '').trim() !== '' || 
+    (optionalMember?.phone || '').replace(/\D/g, '') !== ''
+  ), [optionalMember]);
+
+  const isOptionalMemberValid = useMemo(() => !isOptionalTouched || isMemberComplete(optionalMember), [isOptionalTouched, optionalMember, isMemberComplete]);
 
   // 3. Team Name must be at least 2 characters
   const isTeamNameValid = (registrationState.teamName || '').trim().length >= 2;
 
   // 4. Overall Team Validity (Team size < 3 is rejected)
   const isTeamValid = isTeamNameValid && requiredMembersComplete && isOptionalMemberValid;
+
+  // Smooth scroll to the first missing field
+  const scrollToFirstMissingField = useCallback(() => {
+    if (!isTeamNameValid) {
+      const el = document.getElementById('teamNameInput');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.focus();
+      }
+      return;
+    }
+
+    const firstIncomplete = requiredMembers.find(m => !isMemberComplete(m)) || 
+      (isOptionalTouched && !isOptionalMemberValid ? optionalMember : null);
+
+    if (firstIncomplete) {
+      setExpandedMemberId(firstIncomplete.id);
+
+      setTimeout(() => {
+        const m = firstIncomplete;
+        const cleanPhone = (m.phone || '').replace(/\D/g, '');
+        const cleanWardenPhone = (m.wardenPhone || '').replace(/\D/g, '');
+
+        let targetFieldId = '';
+        if (!(m.name || '').trim()) {
+          targetFieldId = `member-${m.id}-name`;
+        } else if (!(m.registerNumber || '').trim()) {
+          targetFieldId = `member-${m.id}-registerNumber`;
+        } else if (cleanPhone.length !== 10) {
+          targetFieldId = `member-${m.id}-phone`;
+        } else if (!(m.section || '').trim()) {
+          targetFieldId = `member-${m.id}-section`;
+        } else if (!(m.year || '').trim()) {
+          targetFieldId = `member-${m.id}-year`;
+        } else if (!(m.department || '').trim()) {
+          targetFieldId = `member-${m.id}-department`;
+        } else if (m.residenceType === 'Hosteller') {
+          if (!(m.hostelName || '').trim()) {
+            targetFieldId = `member-${m.id}-hostelName`;
+          } else if (!(m.roomNumber || '').trim()) {
+            targetFieldId = `member-${m.id}-roomNumber`;
+          } else if (!(m.wardenName || '').trim()) {
+            targetFieldId = `member-${m.id}-wardenName`;
+          } else if (cleanWardenPhone.length !== 10) {
+            targetFieldId = `member-${m.id}-wardenPhone`;
+          }
+        }
+
+        if (targetFieldId) {
+          const el = document.getElementById(targetFieldId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+          }
+        }
+      }, 160);
+    }
+  }, [isTeamNameValid, requiredMembers, isMemberComplete, isOptionalTouched, isOptionalMemberValid, optionalMember]);
 
   // Steps definition for progress indicator
   const navSteps = [
@@ -316,10 +406,22 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
             <div className="max-w-3xl mx-auto space-y-6 pb-44 sm:pb-36">
               
               {/* Team Name Input Card */}
-              <div className="bg-[#07091C]/80 border border-white/12 rounded-[24px] p-4 sm:p-6 backdrop-blur-[24px] space-y-3 registration-card">
-                <label htmlFor="teamNameInput" className="block text-xs font-mono font-bold uppercase tracking-wider text-white/70 pl-2">
-                  Team Name *
-                </label>
+              <div className={`bg-[#07091C]/80 border rounded-[24px] p-4 sm:p-6 backdrop-blur-[24px] space-y-3 registration-card transition-all ${
+                !isTeamNameValid && requiredMembersComplete
+                  ? 'border-amber-500/70 shadow-[0_0_24px_rgba(245,158,11,0.25)]'
+                  : 'border-white/12'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="teamNameInput" className="block text-xs font-mono font-bold uppercase tracking-wider text-white/70 pl-2">
+                    Team Name *
+                  </label>
+                  {!isTeamNameValid && (
+                    <span className="text-[10px] font-mono text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-semibold">
+                      <AlertCircle className="w-3 h-3 text-amber-400" />
+                      <span>Required (min 2 chars)</span>
+                    </span>
+                  )}
+                </div>
                 <div className="relative">
                   <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
                   <input
@@ -328,7 +430,11 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
                     value={registrationState.teamName}
                     onChange={(e) => setRegistrationState(prev => ({ ...prev, teamName: e.target.value }))}
                     placeholder="e.g. Binary Builders"
-                    className="registration-input w-full h-[46px] sm:h-[48px] pl-11 pr-5 rounded-full bg-white/[0.04] border border-white/12 hover:border-white/20 focus:border-[#536BFF] focus:ring-1 focus:ring-[#536BFF]/30 text-sm text-white placeholder-white/25 outline-none font-sans"
+                    className={`registration-input w-full h-[46px] sm:h-[48px] pl-11 pr-5 rounded-full bg-white/[0.04] border ${
+                      !isTeamNameValid && requiredMembersComplete
+                        ? 'border-amber-500/70 focus:border-amber-400'
+                        : 'border-white/12 hover:border-white/20 focus:border-[#536BFF]'
+                    } focus:ring-1 focus:ring-[#536BFF]/30 text-sm text-white placeholder-white/25 outline-none font-sans`}
                   />
                 </div>
               </div>
@@ -363,37 +469,45 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
                   <div className="w-full sm:w-auto space-y-1 text-center sm:text-left">
                     <div className="flex items-center justify-between sm:justify-start gap-2">
                       <span className="font-space font-bold text-xs sm:text-sm text-white truncate max-w-[200px] sm:max-w-none">
-                        {registrationState.teamName ? registrationState.teamName : 'Team Name Required'}
+                        {registrationState.teamName ? registrationState.teamName : 'Enter Team Name'}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold uppercase shrink-0 ${
                         isTeamValid 
                           ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
                           : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
                       }`}>
-                        {isTeamValid ? 'Ready' : 'Incomplete'}
+                        {isTeamValid ? 'Team Ready' : !isTeamNameValid ? 'Team Name Missing' : 'Members Incomplete'}
                       </span>
                     </div>
 
                     {/* Member Readiness Green Bars */}
-                    <div className="flex items-center justify-center sm:justify-start gap-1 py-0.5 flex-wrap">
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5 py-0.5 flex-wrap">
                       {(registrationState.members || []).map((m, idx) => {
                         const complete = isMemberComplete(m);
                         return (
-                          <div
+                          <button
                             key={m.id}
-                            className={`h-1.5 sm:h-2 w-6 sm:w-10 rounded-full transition-all duration-300 ${
+                            type="button"
+                            onClick={() => {
+                              setExpandedMemberId(m.id);
+                              setTimeout(() => {
+                                const el = document.getElementById(`member-${m.id}-name`);
+                                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }, 150);
+                            }}
+                            className={`h-2 sm:h-2.5 w-7 sm:w-10 rounded-full transition-all duration-300 cursor-pointer ${
                               complete 
-                                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]' 
-                                : idx === 4 
-                                ? 'bg-white/10' 
-                                : 'bg-amber-500/40'
+                                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] hover:scale-105' 
+                                : m.isOptional && !isOptionalTouched
+                                ? 'bg-white/10 hover:bg-white/20' 
+                                : 'bg-amber-500/40 hover:bg-amber-500/60'
                             }`}
-                            title={`${m.role}: ${complete ? 'Verified' : 'Pending'}`}
+                            title={`${m.role}: ${complete ? 'Verified' : 'Click to edit'}`}
                           />
                         );
                       })}
                       <span className="text-[10px] sm:text-[11px] font-mono text-white/70 ml-1 font-bold">
-                        {requiredMembers.filter(isMemberComplete).length}/3 Verified
+                        {requiredMembers.filter(isMemberComplete).length}/3 Verified {isOptionalAdded ? '+ Optional Member' : ''}
                       </span>
                     </div>
 
@@ -406,16 +520,27 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
                   {/* Primary Action Button */}
                   <button
                     type="button"
-                    onClick={() => setCurrentStep('review')}
-                    disabled={!isTeamValid}
+                    onClick={() => {
+                      if (isTeamValid) {
+                        setCurrentStep('review');
+                      } else {
+                        scrollToFirstMissingField();
+                      }
+                    }}
                     className={`w-full sm:w-auto h-[44px] sm:h-[48px] px-6 sm:px-8 rounded-full font-space font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 border ${
                       isTeamValid
                         ? 'bg-gradient-to-r from-[#536BFF] to-[#4256F6] text-white border-white/20 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_24px_rgba(83,107,255,0.4)]'
-                        : 'bg-white/5 text-white/30 border-white/5 cursor-not-allowed'
+                        : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20 active:scale-[0.98]'
                     }`}
                   >
                     <CreditCard className="w-4 h-4 shrink-0" />
-                    <span>Save & Continue to Review →</span>
+                    <span>
+                      {isTeamValid 
+                        ? 'Save & Continue to Review →' 
+                        : !isTeamNameValid 
+                        ? 'Enter Team Name Above' 
+                        : 'Complete Required Members'}
+                    </span>
                   </button>
 
                 </div>

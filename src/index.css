@@ -384,6 +384,11 @@ body {
   overflow: hidden;
 }
 
+.faq-accordion-grid.is-expanded .accordion-content-inner,
+.registration-accordion-grid.is-expanded .accordion-content-inner {
+  overflow: visible;
+}
+
 /* Registration form input touch optimization */
 .registration-input {
   touch-action: manipulation;

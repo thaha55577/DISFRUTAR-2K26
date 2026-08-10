@@ -7,9 +7,12 @@ import {
   CheckCircle2, 
   ShieldAlert, 
   Home, 
+  Building2,
   UserCheck
 } from 'lucide-react';
 import { TeamRegistrationState } from '../../types/registration';
+
+import { ModalPortal } from '../ui/ModalPortal';
 
 interface ReviewStepProps {
   state: TeamRegistrationState;
@@ -111,7 +114,9 @@ const ReviewStepComponent: React.FC<ReviewStepProps> = ({
                     </div>
                     <div>
                       <span className="text-white/40 text-[10px] block uppercase">Mobile No</span>
-                      <strong className="text-[#8DA2FF] font-mono text-xs break-all">{m.phone || 'N/A'}</strong>
+                      <strong className="text-[#8DA2FF] font-mono text-xs break-all">
+                        {m.phone ? `+91 ${m.phone.replace(/\D/g, '').slice(-10)}` : 'N/A'}
+                      </strong>
                     </div>
                     <div>
                       <span className="text-white/40 text-[10px] block uppercase">Year & Dept</span>
@@ -128,7 +133,11 @@ const ReviewStepComponent: React.FC<ReviewStepProps> = ({
                 <div className="p-3 rounded-xl bg-[#536BFF]/10 border border-[#536BFF]/20 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-mono text-white/90">
-                      <Home className="w-4 h-4 text-[#8DA2FF]" />
+                      {m.residenceType === 'Hosteller' ? (
+                        <Building2 className="w-4 h-4 text-[#8DA2FF]" />
+                      ) : (
+                        <Home className="w-4 h-4 text-emerald-400" />
+                      )}
                       <span className="font-bold">{m.residenceType}</span>
                     </div>
                     <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold ${
@@ -159,7 +168,7 @@ const ReviewStepComponent: React.FC<ReviewStepProps> = ({
                       {m.wardenPhone && (
                         <div>
                           <span className="text-white/40 text-[9px] uppercase block">Warden Phone</span>
-                          <span className="text-[#8DA2FF]">{m.wardenPhone}</span>
+                          <span className="text-[#8DA2FF]">+91 {m.wardenPhone.replace(/\D/g, '').slice(-10)}</span>
                         </div>
                       )}
                     </div>
@@ -219,73 +228,76 @@ const ReviewStepComponent: React.FC<ReviewStepProps> = ({
       {/* Confirmation Modal */}
       <AnimatePresence>
         {showConfirmModal && (
-          <div 
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setShowConfirmModal(false);
-            }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto gpu-accelerate"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full max-w-md bg-[#07091C]/95 border border-[#536BFF]/50 rounded-[28px] p-6 sm:p-8 shadow-[0_32px_80px_rgba(83,107,255,0.3)] space-y-5 text-center overflow-hidden my-auto text-white backdrop-blur-2xl gpu-accelerate"
+          <ModalPortal>
+            <div 
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setShowConfirmModal(false);
+              }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-xl font-sans overflow-y-auto"
             >
-              {/* Top Ambient Glow Line */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1.5px] bg-gradient-to-r from-transparent via-[#536BFF]/80 to-transparent blur-[0.5px]" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="relative w-full max-w-md my-auto max-h-[90vh] bg-[#07091C]/95 border border-[#536BFF]/50 rounded-[28px] p-5 sm:p-8 shadow-[0_32px_80px_rgba(83,107,255,0.35)] space-y-5 text-center overflow-y-auto text-white backdrop-blur-2xl gpu-accelerate"
+              >
+                {/* Top Ambient Glow Line */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1.5px] bg-gradient-to-r from-transparent via-[#536BFF]/80 to-transparent blur-[0.5px]" />
 
-              <div className="w-14 h-14 rounded-full bg-amber-500/15 border-2 border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto shadow-[0_0_24px_rgba(245,158,11,0.3)]">
-                <ShieldAlert className="w-7 h-7" />
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 inline-block">
-                  Final Registration Verification
-                </span>
-                <h3 className="text-xl sm:text-2xl font-space font-bold text-white tracking-wide">Confirm Team Details</h3>
-                <p className="text-xs text-white/70 font-sans leading-relaxed">
-                  Please verify your team details carefully. After completing checkout, modifying member information will require administrative approval.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2 text-xs font-mono">
-                <div className="flex justify-between items-center pb-1 border-b border-white/10">
-                  <span className="text-white/50 uppercase text-[10px]">Team Name:</span>
-                  <span className="text-white font-bold font-space">{state.teamName}</span>
+                <div className="w-14 h-14 rounded-full bg-amber-500/15 border-2 border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto shadow-[0_0_24px_rgba(245,158,11,0.3)] shrink-0">
+                  <ShieldAlert className="w-7 h-7" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white/50 uppercase text-[10px]">Registered Size:</span>
-                  <span className="text-white font-bold">{memberCount} Members</span>
-                </div>
-                <div className="flex justify-between items-center pt-1 border-t border-white/10">
-                  <span className="text-white/50 uppercase text-[10px]">Total Fee Amount:</span>
-                  <span className="text-[#8DA2FF] font-bold text-sm">₹{totalAmount}</span>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmModal(false)}
-                  className="h-[46px] rounded-full border border-white/14 bg-white/5 text-white/80 font-space text-xs font-semibold hover:bg-white/10 hover:text-white cursor-pointer transition-all"
-                >
-                  Edit Details
-                </button>
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 inline-block">
+                    Final Registration Verification
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-space font-bold text-white tracking-wide">Confirm Team Details</h3>
+                  <p className="text-xs text-white/70 font-sans leading-relaxed">
+                    Please verify your team details carefully. After completing checkout, modifying member information will require administrative approval.
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowConfirmModal(false);
-                    onConfirm();
-                  }}
-                  className="h-[46px] rounded-full bg-gradient-to-r from-[#536BFF] to-[#4256F6] text-white font-space text-xs font-semibold hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(83,107,255,0.4)] cursor-pointer transition-all"
-                >
-                  Confirm & Pay →
-                </button>
-              </div>
-            </motion.div>
-          </div>
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-2 text-xs font-mono">
+                  <div className="flex justify-between items-center pb-1 border-b border-white/10">
+                    <span className="text-white/50 uppercase text-[10px]">Team Name:</span>
+                    <span className="text-white font-bold font-space break-all">{state.teamName}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50 uppercase text-[10px]">Registered Size:</span>
+                    <span className="text-white font-bold">{memberCount} Members</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1 border-t border-white/10">
+                    <span className="text-white/50 uppercase text-[10px]">Total Fee Amount:</span>
+                    <span className="text-[#8DA2FF] font-bold text-sm">₹{totalAmount}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmModal(false)}
+                    className="h-[46px] rounded-full border border-white/14 bg-white/5 text-white/80 font-space text-xs font-semibold hover:bg-white/10 hover:text-white cursor-pointer transition-all flex items-center justify-center"
+                  >
+                    Edit Details
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      onConfirm();
+                    }}
+                    className="h-[46px] rounded-full bg-gradient-to-r from-[#536BFF] to-[#4256F6] text-white font-space text-xs font-semibold hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(83,107,255,0.4)] cursor-pointer transition-all flex items-center justify-center gap-1"
+                  >
+                    <span>Confirm & Pay</span>
+                    <span>→</span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </ModalPortal>
         )}
       </AnimatePresence>
 

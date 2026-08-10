@@ -17,9 +17,28 @@ const StickySummaryComponent: React.FC<StickySummaryProps> = ({
 
   const isMemberComplete = (m: MemberData) => {
     if (!m) return false;
-    const basic = Boolean((m.name || '').trim()) && Boolean((m.registerNumber || '').trim()) && Boolean(m.year) && Boolean(m.department);
-    const hostel = m.residenceType === 'Day Scholar' || (Boolean((m.hostelName || '').trim()) && Boolean((m.roomNumber || '').trim()));
-    return basic && hostel;
+    const cleanPhone = (m.phone || '').replace(/\D/g, '');
+    const basic = 
+      Boolean((m.name || '').trim()) && 
+      Boolean((m.registerNumber || '').trim()) && 
+      cleanPhone.length === 10 && 
+      Boolean((m.year || '').trim()) && 
+      Boolean((m.department || '').trim()) && 
+      Boolean((m.section || '').trim());
+      
+    if (!basic) return false;
+
+    if (m.residenceType === 'Hosteller') {
+      const cleanWardenPhone = (m.wardenPhone || '').replace(/\D/g, '');
+      const hostel = 
+        Boolean((m.hostelName || '').trim()) &&
+        Boolean((m.roomNumber || '').trim()) &&
+        Boolean((m.wardenName || '').trim()) &&
+        cleanWardenPhone.length === 10;
+      return hostel;
+    }
+
+    return true;
   };
 
   const completedRequired = requiredMembers.filter(isMemberComplete).length;
