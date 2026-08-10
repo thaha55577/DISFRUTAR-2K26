@@ -16,6 +16,8 @@ import {
 } from '../../lib/adminStore';
 import { 
   exportTeamsToCSV, 
+  exportTeamsSummaryToCSV,
+  exportTeamsToExcelXML,
   openOverallPDF, 
   openHostellersPDF, 
   openDayScholarsPDF, 
@@ -499,10 +501,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminEmail, onLo
               <button
                 onClick={() => exportTeamsToCSV(filteredTeams)}
                 className="px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 text-emerald-400 font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                title="Download CSV Spreadsheet"
+                title="Download Member-Wise Detailed CSV (Leader Highlighted, Scientific Notation Fixed)"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>CSV ({filteredTeams.length})</span>
+                <span>Member CSV ({filteredTeams.length})</span>
+              </button>
+
+              <button
+                onClick={() => exportTeamsToExcelXML(filteredTeams)}
+                className="px-3.5 py-1.5 rounded-full bg-teal-500/15 border border-teal-500/30 hover:bg-teal-500/25 text-teal-300 font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Download Styled Excel (.xls) Spreadsheet with Colors & Borders"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Styled Excel (.xls)</span>
               </button>
 
               <button
@@ -658,9 +669,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ adminEmail, onLo
                   <button
                     onClick={() => exportTeamsToCSV(teams)}
                     className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold flex items-center gap-2 cursor-pointer"
+                    title="Download Full Detailed Member Roster CSV"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Download Master CSV</span>
+                    <span>Member Roster CSV</span>
+                  </button>
+                  <button
+                    onClick={() => exportTeamsToExcelXML(teams)}
+                    className="px-4 py-2 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold flex items-center gap-2 cursor-pointer"
+                    title="Download Formatted Excel (.xls) Workbook"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Styled Master Excel (.xls)</span>
+                  </button>
+                  <button
+                    onClick={() => exportTeamsSummaryToCSV(teams)}
+                    className="px-4 py-2 rounded-full bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-mono font-bold flex items-center gap-2 cursor-pointer"
+                    title="Download Teams Summary CSV with Side-by-Side Member Columns"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Team Summary CSV</span>
                   </button>
                 </div>
               </div>
