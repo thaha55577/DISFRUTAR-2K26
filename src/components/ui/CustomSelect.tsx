@@ -110,7 +110,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.98 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute left-0 right-0 top-[calc(100%+6px)] z-[100] bg-[#070a21]/98 border border-[#536BFF]/50 rounded-[20px] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.95)] backdrop-blur-2xl max-h-[220px] overflow-y-auto custom-scrollbar gpu-accelerate"
+              className="absolute left-0 right-0 top-[calc(100%+6px)] z-[100] bg-[#0c1033] border border-[#536BFF]/70 rounded-[20px] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.98)] backdrop-blur-2xl max-h-[220px] overflow-y-auto custom-scrollbar gpu-accelerate"
             >
               <div className="space-y-0.5">
                 {options.map((opt) => {
@@ -125,8 +125,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                       }}
                       className={`w-full px-3.5 py-2.5 rounded-xl text-left text-xs font-sans flex items-center justify-between transition-all duration-150 cursor-pointer ${
                         isSelected
-                          ? 'bg-[#536BFF]/25 text-[#8DA2FF] font-semibold border border-[#536BFF]/40 shadow-[0_0_12px_rgba(83,107,255,0.2)]'
-                          : 'text-white/80 hover:bg-white/[0.08] hover:text-white font-normal'
+                          ? 'bg-[#536BFF]/30 text-[#a5b6ff] font-semibold border border-[#536BFF]/50 shadow-[0_0_12px_rgba(83,107,255,0.25)]'
+                          : 'text-white/90 hover:bg-white/[0.1] hover:text-white font-normal'
                       }`}
                     >
                       <span>{opt}</span>

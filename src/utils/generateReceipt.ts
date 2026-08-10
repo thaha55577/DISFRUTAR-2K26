@@ -119,7 +119,7 @@ export function downloadReceipt(state: TeamRegistrationState) {
               <div class="logo-title">DISFRUTAR 2K26</div>
               <div class="logo-sub">KARE ACM STUDENT CHAPTER</div>
             </div>
-            <div class="badge">PENDING VERIFICATION</div>
+            <div class="badge">REGISTRATION CONFIRMED</div>
           </div>
 
           <div class="info-grid">

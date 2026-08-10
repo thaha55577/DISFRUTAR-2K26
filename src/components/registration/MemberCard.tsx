@@ -127,21 +127,24 @@ const MemberCardComponent: React.FC<MemberCardProps> = ({
     });
   };
 
+  // Clean role display to prevent duplicate "(Optional)" strings in title
+  const displayRole = member.role ? member.role.replace(/\s*\([^)]*\)/g, '').trim() : '';
+
   return (
     <div className={`member-card-container rounded-[18px] border transition-all duration-200 gpu-accelerate ${
       isExpanded 
-        ? 'border-[#536BFF]/60 bg-[#07091C]/95 shadow-[0_8px_32px_rgba(83,107,255,0.15)] overflow-visible relative z-20' 
-        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] overflow-hidden'
+        ? 'border-[#536BFF]/60 bg-[#07091C]/95 shadow-[0_8px_32px_rgba(83,107,255,0.15)] overflow-visible relative z-30' 
+        : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05] relative z-10'
     }`}>
       
       {/* Header Bar */}
       <button
         type="button"
         onClick={onToggleExpand}
-        className="w-full px-5 py-4 flex items-center justify-between text-left cursor-pointer transition-colors"
+        className="w-full px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between text-left cursor-pointer transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-space font-bold text-xs ${
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 pr-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-space font-bold text-xs shrink-0 ${
             isComplete 
               ? 'bg-[#536BFF]/20 text-[#8DA2FF] border border-[#536BFF]/40' 
               : isEmptyOptional 
@@ -151,23 +154,25 @@ const MemberCardComponent: React.FC<MemberCardProps> = ({
             <User className="w-4 h-4" />
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-space font-bold text-sm text-white">
-                {member.role}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-space font-bold text-sm text-white truncate">
+                {displayRole}
               </span>
               {member.isOptional && (
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/10 text-white/50 border border-white/10">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/10 text-white/50 border border-white/10 shrink-0">
                   Optional
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-white/50 font-sans mt-0.5">
+            <p className="text-xs text-white/50 font-sans mt-0.5 min-w-0">
               {member.name ? (
-                <span className="text-white/80 font-medium">{member.name} ({member.registerNumber || 'No Reg No'})</span>
+                <span className="text-white/80 font-medium block truncate max-w-[130px] min-[380px]:max-w-[170px] sm:max-w-[280px]">
+                  {member.name} {member.registerNumber ? `(${member.registerNumber})` : ''}
+                </span>
               ) : (
-                <span className="italic">Click to enter member details</span>
+                <span className="italic block truncate">Click to enter member details</span>
               )}
             </p>
           </div>
@@ -176,23 +181,24 @@ const MemberCardComponent: React.FC<MemberCardProps> = ({
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Status Badge */}
           {isComplete ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-[11px] font-mono font-semibold">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-[11px] font-mono font-semibold shrink-0">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Done</span>
             </span>
           ) : isEmptyOptional ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] sm:text-[11px] font-mono">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] sm:text-[11px] font-mono shrink-0">
               <span>Optional</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] sm:text-[11px] font-mono font-semibold">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span>{missingFields.length > 0 ? `Pending: ${missingFields[0]} Missing` : 'Pending'}</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] sm:text-[11px] font-mono font-semibold shrink-0">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">{missingFields.length > 0 ? `Pending: ${missingFields[0]} Missing` : 'Pending'}</span>
+              <span className="sm:hidden">Pending</span>
             </span>
           )}
 
           <div
-            className={`transform transition-transform duration-200 text-white/40 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`transform transition-transform duration-200 text-white/40 shrink-0 ${isExpanded ? 'rotate-180' : ''}`}
           >
             <ChevronDown className="w-5 h-5" />
           </div>

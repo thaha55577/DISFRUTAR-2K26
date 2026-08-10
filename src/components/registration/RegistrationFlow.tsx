@@ -28,7 +28,7 @@ const INITIAL_MEMBERS: MemberData[] = [
   { id: '1', role: 'Leader', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
   { id: '2', role: 'Member 1', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
   { id: '3', role: 'Member 2', name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
-  { id: '4', role: 'Member 3 (Optional)', isOptional: true, name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
+  { id: '4', role: 'Member 3', isOptional: true, name: '', registerNumber: '', phone: '', year: '', department: '', section: '', residenceType: 'Day Scholar' },
 ];
 
 export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
@@ -56,7 +56,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
             ...m,
             id: String(idx + 1),
             isOptional: idx === 3,
-            role: idx === 0 ? 'Leader' : idx === 3 ? 'Member 3 (Optional)' : `Member ${idx}`,
+            role: idx === 0 ? 'Leader' : `Member ${idx}`,
             residenceType: m.residenceType || 'Day Scholar',
             name: m.name || '',
             registerNumber: m.registerNumber || '',

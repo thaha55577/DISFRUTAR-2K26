@@ -436,12 +436,17 @@ body {
   .faq-card-item,
   .mentor-card,
   .registration-card,
-  .member-card-container,
   .about-card {
     transform: translate3d(0, 0, 0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     contain: layout paint style;
+  }
+
+  .member-card-container {
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   /* Disable heavy hover shadow calculations on touch screens */
