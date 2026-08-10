@@ -162,8 +162,11 @@ const SubmittedStepComponent: React.FC<SubmittedStepProps> = ({
 
           <button
             type="button"
-            onClick={onNext}
-            className="w-full sm:w-auto h-[48px] px-8 rounded-full bg-gradient-to-r from-[#536BFF] to-[#4256F6] text-white font-space font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/20 shadow-[0_0_24px_rgba(83,107,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            onClick={() => {
+              window.open('https://chat.whatsapp.com/CT6etElQq8g1rNMuLMAVEq?s=cl&p=i&ilr=0', '_blank');
+              onNext();
+            }}
+            className="w-full sm:w-auto h-[48px] px-8 rounded-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-space font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-white/20 shadow-[0_0_24px_rgba(37,211,102,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Join Official WhatsApp Group</span>

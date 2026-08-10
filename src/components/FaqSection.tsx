@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, HelpCircle, Sparkles, MessageSquare, CheckCircle2, Calendar, Award, Users, Laptop, DollarSign, FileText, Gift } from 'lucide-react';
+import { ChevronDown, HelpCircle, Sparkles, MessageSquare, MessageCircle, CheckCircle2, Calendar, Award, Users, Laptop, DollarSign, FileText, Gift } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -118,12 +118,16 @@ export const FaqSection: React.FC = () => {
   const faqItems: FaqItem[] = [
     {
       id: 'faq-1',
-      question: 'Who can participate?',
+      question: 'Who is organizing DISFRUTAR 2K26 and who can participate?',
       icon: <Users className="w-4 h-4 text-[#536BFF]" />,
       answer: (
         <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
-          DISFRUTAR 2K26 is exclusively open to students of{' '}
+          DISFRUTAR 2K26 is proudly organized by{' '}
           <span className="text-white font-semibold underline decoration-[#536BFF]/60 underline-offset-4">
+            KARE ACM Student Chapter (Chapter ID: 170084)
+          </span>
+          , Department of Computer Science and Engineering, School of Computing at{' '}
+          <span className="text-white font-semibold">
             Kalasalingam Academy of Research and Education (KARE)
           </span>
           . Students from all departments and academic years are eligible to participate.
@@ -132,14 +136,21 @@ export const FaqSection: React.FC = () => {
     },
     {
       id: 'faq-2',
-      question: 'What is the registration fee?',
+      question: 'What is the registration fee and team size?',
       icon: <DollarSign className="w-4 h-4 text-[#536BFF]" />,
       answer: (
-        <div className="space-y-1.5">
-          <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
+        <div className="space-y-2 text-[14px] sm:text-[15px]">
+          <p className="text-white/80 leading-relaxed">
             The registration fee is{' '}
             <span className="text-[#8DA2FF] font-bold text-[16px] bg-[#536BFF]/12 px-2.5 py-0.5 rounded border border-[#536BFF]/30">
-              ₹350 per participant
+              ₹350/- per participant
+            </span>
+            .
+          </p>
+          <p className="text-white/80 leading-relaxed">
+            Teams must consist of{' '}
+            <span className="text-white font-semibold bg-white/10 px-2.5 py-0.5 rounded border border-white/12">
+              3 or 4 members
             </span>
             .
           </p>
@@ -148,107 +159,118 @@ export const FaqSection: React.FC = () => {
     },
     {
       id: 'faq-3',
-      question: 'What is the team size?',
-      icon: <Users className="w-4 h-4 text-[#536BFF]" />,
-      answer: (
-        <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
-          Each team must consist of{' '}
-          <span className="text-white font-semibold bg-white/10 px-2.5 py-0.5 rounded border border-white/12">
-            3 to 4 members
-          </span>
-          . Individual participation is not allowed.
-        </p>
-      ),
-    },
-    {
-      id: 'faq-4',
-      question: 'What is the event schedule?',
+      question: 'What is the event schedule and venue?',
       icon: <Calendar className="w-4 h-4 text-[#536BFF]" />,
       answer: (
         <div className="space-y-3 text-[14px] sm:text-[15px]">
-          <p className="text-white/80">The event consists of three phases:</p>
+          <p className="text-white/80">DISFRUTAR 2K26 includes online bootcamps & an offline 32-hour hackathon:</p>
           <div className="grid gap-2.5 pt-0.5">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8">
               <span className="px-2.5 py-1 text-xs font-bold font-space text-[#8DA2FF] bg-[#536BFF]/15 rounded-md border border-[#536BFF]/30 shrink-0">
-                15 August
+                15.08.2026 (Online)
               </span>
-              <span className="text-white/90 font-medium">Online Bootcamp</span>
+              <span className="text-white/90 font-medium">Day 1: Topic - Introduction to Agentic AI</span>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8">
               <span className="px-2.5 py-1 text-xs font-bold font-space text-[#8DA2FF] bg-[#536BFF]/15 rounded-md border border-[#536BFF]/30 shrink-0">
-                28 August
+                28.08.2026 (Online)
               </span>
-              <span className="text-white/90 font-medium">Online Bootcamp</span>
+              <span className="text-white/90 font-medium">Day 2: Topic - Advanced Agentic</span>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-xl bg-[#536BFF]/10 border border-[#536BFF]/35 shadow-[0_0_16px_rgba(83,107,255,0.15)]">
               <span className="px-2.5 py-1 text-xs font-bold font-space text-white bg-[#536BFF] rounded-md shadow-[0_0_10px_#536BFF] shrink-0">
-                4 & 5 September
+                04.09.2026 & 05.09.2026
               </span>
-              <span className="text-white font-semibold">32-Hour Offline AI Hackathon</span>
+              <span className="text-white font-semibold">32-Hour Offline Hackathon @ Venue: 9th Block Seminar Hall</span>
             </div>
           </div>
         </div>
       ),
     },
     {
-      id: 'faq-5',
-      question: 'Will participants receive EE Credits and Group III Certificates?',
+      id: 'faq-4',
+      question: 'Will participants receive EE Credits?',
       icon: <Award className="w-4 h-4 text-[#536BFF]" />,
       answer: (
         <div className="space-y-2.5 text-[14px] sm:text-[15px]">
           <p className="text-white/90 font-medium">
-            <span className="text-emerald-400 font-bold">Yes.</span> All eligible participants will receive:
+            <span className="text-emerald-400 font-bold">Yes.</span> The event strictly offers:
           </p>
           <ul className="space-y-2 pt-0.5">
             <li className="flex items-center gap-2.5 text-white/85">
               <CheckCircle2 className="w-4 h-4 text-[#536BFF] shrink-0" />
-              <span><strong className="text-white">2 Experimental Elective (EE) Credits</strong></span>
+              <span><strong className="text-white">2 EE Credits (Experimental Elective Credits)</strong></span>
             </li>
             <li className="flex items-center gap-2.5 text-white/85">
               <CheckCircle2 className="w-4 h-4 text-[#536BFF] shrink-0" />
-              <span><strong className="text-white">Group III Activity Certificate</strong></span>
-            </li>
-            <li className="flex items-center gap-2.5 text-white/85">
-              <CheckCircle2 className="w-4 h-4 text-[#536BFF] shrink-0" />
-              <span><strong className="text-white">Participation Certificate</strong></span>
+              <span><strong className="text-white">Participation & Hackathon Certificates</strong></span>
             </li>
           </ul>
         </div>
       ),
     },
     {
+      id: 'faq-5',
+      question: 'What are the cash prizes and internship opportunities?',
+      icon: <Gift className="w-4 h-4 text-[#536BFF]" />,
+      answer: (
+        <div className="space-y-2 text-[14px] sm:text-[15px]">
+          <p className="text-white/90 font-medium">
+            The 32-Hour Hackathon features a total cash prize pool of <span className="text-emerald-400 font-bold">₹15,000</span>:
+          </p>
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+              <span className="text-[11px] text-white/50 block font-mono">1ST PRIZE</span>
+              <span className="text-white font-bold text-[15px]">₹7,000</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+              <span className="text-[11px] text-white/50 block font-mono">2ND PRIZE</span>
+              <span className="text-white font-bold text-[15px]">₹5,000</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+              <span className="text-[11px] text-white/50 block font-mono">3RD PRIZE</span>
+              <span className="text-white font-bold text-[15px]">₹3,000</span>
+            </div>
+          </div>
+          <p className="text-white/80 pt-1 leading-relaxed">
+            Additionally, <span className="text-[#8DA2FF] font-semibold">Internship Opportunities</span> will be offered to top performers.
+          </p>
+        </div>
+      ),
+    },
+    {
       id: 'faq-6',
-      question: 'When will the problem statements be announced?',
+      question: 'What topics and courses are included in the Bootcamp?',
       icon: <FileText className="w-4 h-4 text-[#536BFF]" />,
       answer: (
         <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
-          The official problem statements will be released{' '}
-          <span className="text-white font-semibold underline decoration-[#536BFF] underline-offset-4">
-            at the beginning of the hackathon
-          </span>
-          . Teams must select and work on one of the provided problem statements.
+          The event offers a <span className="text-white font-semibold">Hands-On Generative AI Bootcamp with Industry Experts</span> featuring <span className="text-[#8DA2FF] font-semibold">Agentic AI Courses</span>. Day 1 covers <span className="text-white">Introduction to Agentic AI</span> and Day 2 covers <span className="text-white">Advanced Agentic</span> AI frameworks.
         </p>
       ),
     },
     {
       id: 'faq-7',
-      question: 'Are there prizes and internship opportunities?',
-      icon: <Gift className="w-4 h-4 text-[#536BFF]" />,
+      question: 'Who are the Patrons and Convenors for the event?',
+      icon: <Users className="w-4 h-4 text-[#536BFF]" />,
       answer: (
-        <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
-          <span className="text-emerald-400 font-bold">Yes.</span> The top-performing teams will receive{' '}
-          <span className="text-white font-semibold">cash prizes</span>, and selected participants may also be offered{' '}
-          <span className="text-[#8DA2FF] font-semibold">internship opportunities</span> based on their overall performance during the hackathon.
-        </p>
+        <div className="space-y-2 text-[13px] sm:text-[14px] text-white/85">
+          <p><strong className="text-white">Chief Patrons:</strong> Illayavallal Dr. K. Sridharan (Chancellor), Dr. S. Arivazhagi (Pro Chancellor)</p>
+          <p><strong className="text-white">Patrons:</strong> Dr. S. Shasi Anand (Vice President Academic), Er. S. Arjun Kalasalingam (Vice President Administration)</p>
+          <p><strong className="text-white">Co-Patrons:</strong> Dr. S. Narayanan (Vice Chancellor), Dr. V. Vasudevan (Registrar)</p>
+          <p><strong className="text-white">Convenors:</strong> Dr. P. Deepalakshmi (Dean/SoC), Dr. R. Raja Subramanian (HoD/CSE)</p>
+          <p><strong className="text-white">Faculty Sponsor:</strong> Dr. P. Chinnasamy (ACM/KARE, ASP/CSE)</p>
+          <p><strong className="text-white">Faculty Coordinators:</strong> Mrs. N. Kirthiga, Mrs. S. Reshni, Mrs. B. Lavanya, Mrs. S. Shanmuga Priya, Mr. C. Sivamurugan (AP/CSE)</p>
+          <p><strong className="text-white">Student Coordinators:</strong> S. Thaha, G. Umesh Chandra</p>
+        </div>
       ),
     },
     {
       id: 'faq-8',
-      question: 'What should every team bring?',
+      question: 'What should teams bring to the hackathon venue?',
       icon: <Laptop className="w-4 h-4 text-[#536BFF]" />,
       answer: (
         <p className="text-white/80 leading-relaxed text-[14px] sm:text-[15px]">
-          Each team must bring <span className="text-white font-semibold">at least one laptop</span> for development during the hackathon. All participants are expected to carry their valid <span className="text-white font-semibold underline decoration-white/30 underline-offset-4">KARE Student ID</span> for verification.
+          Teams of 3 or 4 members must bring their laptops and chargers to <span className="text-white font-semibold">Venue: 9th Block Seminar Hall</span> on September 4th & 5th, 2026. Valid KARE student ID cards are required for entry.
         </p>
       ),
     },
@@ -422,16 +444,16 @@ export const FaqSection: React.FC = () => {
         {/* Still Have Questions CTA Banner */}
         <div
           ref={ctaRef}
-          className="mt-12 p-6 sm:p-8 rounded-[24px] bg-gradient-to-r from-[#07091C] via-[#0B0F2A] to-[#07091C] border border-[#536BFF]/30 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden transform-gpu"
+          className="mt-12 p-6 sm:p-8 rounded-[24px] bg-gradient-to-r from-[#07091C] via-[#0B0F2A] to-[#07091C] border border-[#25D366]/30 shadow-[0_12px_40px_rgba(0,0,0,0.6)] flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden transform-gpu"
         >
           {/* Subtle Ambient Radial Light */}
           <div
             className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full blur-[60px] pointer-events-none transform-gpu"
-            style={{ background: 'rgba(83,107,255,0.25)' }}
+            style={{ background: 'rgba(37,211,102,0.22)' }}
           />
 
           <div className="flex items-center gap-4 text-center sm:text-left z-10">
-            <div className="w-12 h-12 rounded-2xl bg-[#536BFF]/15 border border-[#536BFF]/35 flex items-center justify-center text-[#536BFF] shrink-0 shadow-[0_0_16px_rgba(83,107,255,0.3)]">
+            <div className="w-12 h-12 rounded-2xl bg-[#25D366]/15 border border-[#25D366]/35 flex items-center justify-center text-[#25D366] shrink-0 shadow-[0_0_16px_rgba(37,211,102,0.3)]">
               <MessageSquare className="w-6 h-6" />
             </div>
             <div>
@@ -446,18 +468,18 @@ export const FaqSection: React.FC = () => {
 
           <button
             onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.open('https://chat.whatsapp.com/CT6etElQq8g1rNMuLMAVEq?s=cl&p=i&ilr=0', '_blank');
             }}
             className="group relative px-6 py-3 rounded-full text-white font-semibold text-xs sm:text-sm font-space tracking-wide flex items-center gap-2 cursor-pointer overflow-hidden border border-white/20 transition-transform duration-300 hover:scale-[1.03] active:scale-[0.97] shrink-0 z-10"
             style={{
               background:
-                'linear-gradient(180deg, #536BFF 0%, #4256F6 100%)',
+                'linear-gradient(180deg, #25D366 0%, #128C7E 100%)',
               boxShadow:
-                '0 0 12px rgba(95,125,255,0.45), 0 0 28px rgba(95,125,255,0.30)',
+                '0 0 12px rgba(37,211,102,0.45), 0 0 28px rgba(37,211,102,0.30)',
             }}
           >
-            <Sparkles className="w-4 h-4 text-white/80 group-hover:rotate-12 transition-transform" />
-            <span>Register For DISFRUTAR 2K26</span>
+            <MessageCircle className="w-4 h-4 text-white/90 group-hover:rotate-12 transition-transform" />
+            <span>Join WhatsApp Group</span>
           </button>
         </div>
       </div>

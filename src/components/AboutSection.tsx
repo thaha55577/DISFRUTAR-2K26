@@ -22,7 +22,7 @@ export const AboutSection: React.FC = () => {
   const usersIconRef = useRef<HTMLDivElement>(null);
 
   const descText =
-    "DISFRUTAR 2K26 is more than a hackathon — it's a movement to empower the next generation of innovators. We bring together curiosity, creativity, and technology to build solutions that shape a better tomorrow.";
+    "DISFRUTAR 2K26 is a Bootcamp & 32-Hour Hackathon organized by KARE ACM Student Chapter (Chapter ID: 170084), Department of Computer Science and Engineering, School of Computing at Kalasalingam Academy of Research and Education. Featuring hands-on Generative AI & Agentic AI courses with industry experts, offering 2 EE credits, ₹15,000 cash prizes, and internship opportunities for top performers.";
 
   useEffect(() => {
     const isMobile = window.innerWidth <= 768;
@@ -284,45 +284,45 @@ export const AboutSection: React.FC = () => {
     {
       number: '15',
       month: 'AUGUST',
-      title: 'Boot Camp 1 (Online)',
-      description: 'Intro to Agentic AI, intelligent agents, and applications. 09:00 AM – 06:00 PM',
+      title: 'Day 1: Bootcamp (Online)',
+      description: 'Topic: Introduction to Agentic AI. Hands-on Generative AI with industry experts.',
     },
     {
       number: '28',
       month: 'AUGUST',
-      title: 'Boot Camp 2 (Online)',
-      description: 'Advanced Agentic AI, frameworks, and practical development. 09:00 AM – 06:00 PM',
+      title: 'Day 2: Bootcamp (Online)',
+      description: 'Topic: Advanced Agentic. Deep-dive into AI agent frameworks and concepts.',
     },
     {
       number: '4 – 5',
       month: 'SEPTEMBER',
-      title: 'Hackathon (Offline)',
-      description: 'Agentic AI challenge. Build solutions to real-world problems. 09:00 AM – 07:00 PM',
+      title: '32-Hour Hackathon (Offline)',
+      description: 'Venue: 9th Block Seminar Hall. Build solutions to win ₹15,000 cash prizes & internships.',
     },
     {
       number: '₹350',
       month: '',
-      title: 'Registration Fee',
-      description: '₹350 per participant. Earns 2 EE credits & internship opportunities.',
+      title: 'Registration & Perks',
+      description: '₹350 per participant (Team: 3 or 4). Earn 2 EE credits & internship opportunities.',
     },
   ];
 
   const courseTopics = [
     {
-      title: 'Python & Django Core',
-      description: 'Build robust and highly scalable backends for artificial intelligence applications.',
+      title: 'Day 1: Intro to Agentic AI',
+      description: 'Foundations of intelligent agents, autonomous loops, and Generative AI workflows.',
     },
     {
-      title: 'AI Agent Architectures',
-      description: 'Understand cognitive loops, tool use, and multi-agent interaction systems.',
+      title: 'Day 2: Advanced Agentic',
+      description: 'Multi-agent orchestration, tool usage, and complex AI solution design.',
     },
     {
-      title: 'RAG & LangChain Orchestration',
-      description: 'Develop intelligent document ingestion, retrieval, and conversation history flows.',
+      title: 'Industry Experts Bootcamp',
+      description: 'Hands-on Generative AI training powered by experienced industry professionals.',
     },
     {
-      title: 'AI-Powered Employees',
-      description: 'Coordinate multiple agents into a cohesive automated workforce.',
+      title: '32-Hour Offline Hackathon',
+      description: 'Held at 9th Block Seminar Hall with ₹15,000 cash prizes & internship offers.',
     },
   ];
 
@@ -567,10 +567,10 @@ export const AboutSection: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-[20px] lg:text-[22px] font-bold text-white tracking-tight leading-tight">
-                  AI Django Course
+                  Agentic AI & GenAI
                 </h3>
                 <p className="text-[11px] font-mono text-[#8DA2FF] font-semibold uppercase tracking-wider">
-                  Agentic AI for Developers
+                  Bootcamp & Hackathon
                 </p>
               </div>
             </div>
@@ -652,21 +652,10 @@ export const AboutSection: React.FC = () => {
                   className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#536BFF]/40 hover:bg-[#536BFF]/5 transition-all text-xs font-mono"
                 >
                   <div className="flex flex-col">
-                    <span className="text-white font-semibold">Shaik Thaha</span>
-                    <span className="text-white/40 text-[10px]">Lead Organizer</span>
+                    <span className="text-white font-semibold">S. Thaha</span>
+                    <span className="text-white/40 text-[10px]">Student Coordinator</span>
                   </div>
                   <span className="text-[#8DA2FF] font-semibold">+91 7893340788</span>
-                </a>
-
-                <a 
-                  href="tel:+918885261206" 
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#536BFF]/40 hover:bg-[#536BFF]/5 transition-all text-xs font-mono"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-white font-semibold">A. Harini</span>
-                    <span className="text-white/40 text-[10px]">Coordinator</span>
-                  </div>
-                  <span className="text-[#8DA2FF] font-semibold">+91 8885261206</span>
                 </a>
 
                 <a 
@@ -675,10 +664,20 @@ export const AboutSection: React.FC = () => {
                 >
                   <div className="flex flex-col">
                     <span className="text-white font-semibold">G. Umesh Chandra</span>
-                    <span className="text-white/40 text-[9px] truncate max-w-[110px]">Coordinator</span>
+                    <span className="text-white/40 text-[10px]">Student Coordinator</span>
                   </div>
                   <span className="text-[#8DA2FF] font-semibold">+91 9573861418</span>
                 </a>
+
+                <div 
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#536BFF]/40 hover:bg-[#536BFF]/5 transition-all text-xs font-mono"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-white font-semibold">Dr. P. Chinnasamy</span>
+                    <span className="text-white/40 text-[9px] truncate max-w-[140px]">Faculty Sponsor (ACM/KARE)</span>
+                  </div>
+                  <span className="text-[#8DA2FF] font-semibold">ASP / CSE</span>
+                </div>
               </div>
             </div>
           </div>

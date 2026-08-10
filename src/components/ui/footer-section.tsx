@@ -114,10 +114,10 @@ export function Footer() {
 				{ title: 'kareacm@klu.ac.in', href: 'mailto:kareacm@klu.ac.in', icon: Mail, isExternal: true },
 				{ 
 					title: 'WhatsApp Group', 
-					href: '#', 
+					href: 'https://chat.whatsapp.com/CT6etElQq8g1rNMuLMAVEq?s=cl&p=i&ilr=0', 
 					icon: MessageCircle, 
-					badge: 'Soon',
-					onClick: handleWhatsappClick 
+					isExternal: true,
+					badge: 'JOIN'
 				},
 			],
 		},
@@ -173,18 +173,16 @@ export function Footer() {
 							Empowering computing students with real-world exposure, interactive AI masterclasses, and professional collaborative network. Join us to build, hack, and redefine artificial intelligence.
 						</p>
 
-						{/* Toast Notification for WhatsApp coming soon */}
-						{whatsappNotice && (
-							<motion.div 
-								initial={{ opacity: 0, y: 10, scale: 0.95 }}
-								animate={{ opacity: 1, y: 0, scale: 1 }}
-								exit={{ opacity: 0, y: 10, scale: 0.95 }}
-								className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#536BFF]/15 border border-[#536BFF]/45 shadow-[0_0_16px_rgba(83,107,255,0.2)] text-[#8DA2FF] text-xs font-semibold font-space"
-							>
-								<Sparkles className="w-3.5 h-3.5 animate-pulse text-[#8DA2FF]" />
-								<span>WhatsApp group link will be live once registration opens!</span>
-							</motion.div>
-						)}
+						{/* Direct WhatsApp Group Button */}
+						<a 
+							href="https://chat.whatsapp.com/CT6etElQq8g1rNMuLMAVEq?s=cl&p=i&ilr=0"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366]/15 border border-[#25D366]/40 shadow-[0_0_16px_rgba(37,211,102,0.25)] text-[#25D366] text-xs font-semibold font-space hover:bg-[#25D366] hover:text-white transition-all duration-300 cursor-pointer"
+						>
+							<MessageCircle className="w-4 h-4" />
+							<span>Join Official WhatsApp Group</span>
+						</a>
 					</AnimatedContainer>
 
 					{/* Right Column: Links Grid */}
