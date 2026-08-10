@@ -11,29 +11,29 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
+  state: State = {
     hasError: false,
     error: null
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Unhandled runtime error captured by ErrorBoundary:', error, errorInfo);
   }
 
-  private handleReset = () => {
-    this.setState({ hasError: false, error: null });
+  handleReset = () => {
+    (this as any).setState({ hasError: false, error: null });
     window.location.href = '/';
   };
 
-  private handleReload = () => {
+  handleReload = () => {
     window.location.reload();
   };
 
-  public render() {
+  render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen w-full bg-[#050814] text-white font-space flex items-center justify-center p-4 selection:bg-[#536BFF]">
@@ -86,6 +86,6 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return (this as any).props.children;
   }
 }

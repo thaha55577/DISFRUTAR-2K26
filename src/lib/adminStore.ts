@@ -33,6 +33,7 @@ export interface TeamRecord {
   approvedBy?: string;
   approvedAt?: string;
   rejectReason?: string;
+  registeredByEmail?: string;
   timeline: {
     title: string;
     timestamp: string;

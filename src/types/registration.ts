@@ -2,7 +2,7 @@ export type ResidenceType = 'Day Scholar' | 'Hosteller';
 
 export interface MemberData {
   id: string;
-  role: 'Leader' | 'Member 1' | 'Member 2' | 'Member 3' | 'Member 4 (Optional)';
+  role: 'Leader' | 'Member 1' | 'Member 2' | 'Member 3' | 'Member 4 (Optional)' | 'Member 3 (Optional)';
   isOptional?: boolean;
   name: string;
   registerNumber: string;
