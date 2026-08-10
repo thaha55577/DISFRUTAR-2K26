@@ -115,10 +115,28 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
           const regNumStr = matchedMember?.registerNumber ? ` (${matchedMember.registerNumber})` : '';
           setMatchedRoleInfo(`${roleTitle}${regNumStr}`);
           setCurrentStep('submitted');
+        } else if (isMounted) {
+          // If user has no existing registration in Firebase, clear any stale stored registrationId
+          setRegistrationState(prev => {
+            if (prev.registrationId || prev.paymentStatus) {
+              return {
+                ...prev,
+                registrationId: undefined,
+                paymentStatus: undefined,
+                rejectReason: undefined,
+              };
+            }
+            return prev;
+          });
+        }
+        if (isMounted) {
           setIsExistingRegistrationChecked(true);
         }
       } catch (e) {
         console.warn("Existing registration check notice:", e);
+        if (isMounted) {
+          setIsExistingRegistrationChecked(true);
+        }
       }
     }
 

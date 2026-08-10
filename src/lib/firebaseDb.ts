@@ -63,113 +63,87 @@ export async function findRegistrationByUserEmail(userEmail: string): Promise<Re
   const cleanEmail = userEmail.trim().toLowerCase();
   const regNumberMatch = cleanEmail.split("@")[0].trim().toLowerCase();
 
-  try {
-    const q = query(collection(db, REGISTRATIONS_COLLECTION));
-    const snapshot = await getDocs(q);
-    for (const docSnap of snapshot.docs) {
-      const data = docSnap.data() as TeamRecord;
-      if (data) {
-        const createdBy = (data as any).registeredByEmail ? (data as any).registeredByEmail.trim().toLowerCase() : "";
-        const isCreatedByMatch = Boolean(createdBy && (createdBy === cleanEmail || createdBy === regNumberMatch));
+  // Helper function to check if a TeamRecord matches the user email or reg number strictly
+  const isTeamMatch = (data: TeamRecord): { isMatch: boolean; matchedMember: MemberData | null; matchedRole: string } => {
+    if (!data) return { isMatch: false, matchedMember: null, matchedRole: '' };
 
-        let matchedMember: MemberData | null = null;
-        let matchedRole = "Team Leader / Member";
+    const createdBy = (data as any).registeredByEmail ? (data as any).registeredByEmail.trim().toLowerCase() : "";
+    const isCreatedByMatch = Boolean(createdBy && (createdBy === cleanEmail || createdBy === regNumberMatch));
 
-        if (data.members && Array.isArray(data.members)) {
-          const matches = data.members.some((m) => {
-            if (!m) return false;
-            const regNum = m.registerNumber ? m.registerNumber.trim().toLowerCase() : "";
-            const phone = m.phone ? m.phone.trim().toLowerCase() : "";
-            const name = m.name ? m.name.trim().toLowerCase() : "";
-            const memEmail = (m as any).email ? (m as any).email.trim().toLowerCase() : "";
+    let matchedMember: MemberData | null = null;
+    let matchedRole = "Team Leader";
 
-            const isMatch = (
-              (regNum && regNum === cleanEmail) ||
-              (regNum && regNum === regNumberMatch) ||
-              (regNum.length >= 4 && cleanEmail.includes(regNum)) ||
-              (regNumberMatch.length >= 4 && regNum.includes(regNumberMatch)) ||
-              (memEmail && memEmail === cleanEmail) ||
-              (phone && phone === cleanEmail) ||
-              (phone && phone === regNumberMatch) ||
-              (name.length >= 3 && cleanEmail.includes(name))
-            );
+    if (data.members && Array.isArray(data.members)) {
+      for (const m of data.members) {
+        if (!m) continue;
+        const regNum = m.registerNumber ? m.registerNumber.trim().toLowerCase() : "";
+        const memPhone = m.phone ? m.phone.replace(/\D/g, "") : "";
+        const memEmail = (m as any).email ? (m as any).email.trim().toLowerCase() : "";
+        const userPhoneDigits = cleanEmail.replace(/\D/g, "");
 
-            if (isMatch) {
-              matchedMember = m;
-              matchedRole = m.role || (m.id === '1' ? 'Leader' : 'Member');
-            }
-            return isMatch;
-          });
+        const isMemberMatch = Boolean(
+          (regNum && (regNum === cleanEmail || regNum === regNumberMatch)) ||
+          (memEmail && memEmail === cleanEmail) ||
+          (memPhone && userPhoneDigits.length === 10 && memPhone === userPhoneDigits)
+        );
 
-          if (matches || isCreatedByMatch) {
-            const teamRecord: TeamRecord = {
-              ...data,
-              id: data.id || docSnap.id,
-            };
-            if (!matchedMember && data.members.length > 0) {
-              matchedMember = data.members[0];
-              matchedRole = matchedMember?.role || 'Leader';
-            }
-            return {
-              team: teamRecord,
-              matchedMember,
-              matchedRole
-            };
-          }
+        if (isMemberMatch) {
+          matchedMember = m;
+          matchedRole = m.role || (m.id === '1' ? 'Leader' : 'Member');
+          return { isMatch: true, matchedMember, matchedRole };
         }
       }
     }
-  } catch (err) {
-    console.warn("Firestore findRegistrationByUserEmail notice (checking local store):", err);
-  }
 
-  // Local store fallback
+    if (isCreatedByMatch) {
+      matchedMember = data.members && data.members.length > 0 ? data.members[0] : null;
+      matchedRole = matchedMember?.role || 'Leader';
+      return { isMatch: true, matchedMember, matchedRole };
+    }
+
+    return { isMatch: false, matchedMember: null, matchedRole: '' };
+  };
+
   try {
-    const localTeams = getStoredTeams();
-    for (const t of localTeams) {
-      if (!t) continue;
-      const createdBy = (t as any).registeredByEmail ? (t as any).registeredByEmail.trim().toLowerCase() : "";
-      const isCreatedByMatch = Boolean(createdBy && (createdBy === cleanEmail || createdBy === regNumberMatch));
+    const q = query(collection(db, REGISTRATIONS_COLLECTION));
+    const snapshot = await getDocs(q);
 
-      let matchedMember: MemberData | null = null;
-      let matchedRole = "Team Member";
-
-      const found = Boolean(t.members && Array.isArray(t.members) && t.members.some((m) => {
-        if (!m) return false;
-        const regNum = m.registerNumber ? m.registerNumber.trim().toLowerCase() : "";
-        const phone = m.phone ? m.phone.trim().toLowerCase() : "";
-        const memEmail = (m as any).email ? (m as any).email.trim().toLowerCase() : "";
-
-        const isMatch = (
-          (regNum && regNum === cleanEmail) ||
-          (regNum && regNum === regNumberMatch) ||
-          (regNum.length >= 4 && cleanEmail.includes(regNum)) ||
-          (regNumberMatch.length >= 4 && regNum.includes(regNumberMatch)) ||
-          (memEmail && memEmail === cleanEmail) ||
-          (phone && phone === cleanEmail) ||
-          (phone && phone === regNumberMatch)
-        );
-        if (isMatch) {
-          matchedMember = m;
-          matchedRole = m.role || (m.id === '1' ? 'Leader' : 'Member');
-        }
-        return isMatch;
-      }));
-
-      if (found || isCreatedByMatch) {
-        if (!matchedMember && t.members && t.members.length > 0) {
-          matchedMember = t.members[0];
-          matchedRole = matchedMember?.role || 'Leader';
-        }
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data() as TeamRecord;
+      const { isMatch, matchedMember, matchedRole } = isTeamMatch(data);
+      if (isMatch) {
+        const teamRecord: TeamRecord = {
+          ...data,
+          id: data.id || docSnap.id,
+        };
         return {
-          team: t,
+          team: teamRecord,
           matchedMember,
           matchedRole
         };
       }
     }
-  } catch (e) {
-    // ignore
+
+    // Firestore query succeeded and no match was found for this user in Firebase
+    return null;
+  } catch (err) {
+    console.warn("Firestore findRegistrationByUserEmail notice (checking local store fallback):", err);
+    // Only check local store fallback if Firestore network request failed
+    try {
+      const localTeams = getStoredTeams();
+      for (const t of localTeams) {
+        const { isMatch, matchedMember, matchedRole } = isTeamMatch(t);
+        if (isMatch) {
+          return {
+            team: t,
+            matchedMember,
+            matchedRole
+          };
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
   }
 
   return null;
