@@ -2,10 +2,133 @@ import { TeamRecord } from './adminStore';
 import { MemberData } from '../types/registration';
 
 /**
- * Standard CSV Export for teams
+ * Helper to escape quotes and format values for Excel-friendly CSV:
+ * - Prepend UTF-8 BOM (\uFEFF) byte so symbols (₹, ⭐) render without corruption
+ * - Wraps numbers/long IDs with ="VALUE" so Excel forces text mode (no scientific notation like 9.924E+10)
+ * - Escapes internal quotes
  */
-export function exportTeamsToCSV(teams: TeamRecord[], filename = 'DISFRUTAR_2K26_Teams_Report.csv') {
+function formatCSVCell(val: string | number | undefined | null, isNumberString = false): string {
+  if (val === undefined || val === null) return '""';
+  const str = String(val).trim();
+  if (str === '') return '""';
+
+  if (isNumberString) {
+    // Excel formula wrapper to preserve leading zeros & avoid scientific notation (e.g., 9.924E+10)
+    const cleanStr = str.replace(/"/g, '""');
+    return `"=""${cleanStr}"""`;
+  }
+
+  // Standard CSV escaped string
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * 1. ENHANCED MEMBER-WISE DETAILED ROSTER CSV EXPORT (DEFAULT)
+ * Features:
+ * - Col 1: Team S.No (1, 2, 3...)
+ * - Col 2: Team ID
+ * - Col 3: Team Name (Well formatted & centered)
+ * - Col 4: Member Role (⭐ TEAM LEADER vs Member 1, 2, 3...)
+ * - Col 5: Member Name (⭐ HIGHLIGHTED TEAM LEADER NAME)
+ * - Col 6: Registration No (Scientific notation safe: ="9924123456")
+ * - Col 7: Mobile Number (Scientific notation safe: ="7416123456")
+ * - Col 8: Department
+ * - Col 9: Section
+ * - Col 10: Year of Study
+ * - Col 11: Residence Type (Hosteller / Day Scholar)
+ * - Col 12: Hostel Name (if Hosteller, else N/A)
+ * - Col 13: Room Number (if Hosteller, else N/A)
+ * - Col 14: Warden Name (if Hosteller, else N/A)
+ * - Col 15: Warden Phone (if Hosteller, else N/A)
+ * - Col 16: Payment Status (APPROVED / PENDING / REJECTED)
+ * - Col 17: Transaction ID (Scientific notation safe)
+ * - Col 18: Amount (₹)
+ * - Col 19: Payment App Used
+ * - Col 20: Submitted Date & Time
+ * - UTF-8 Byte Order Mark (\uFEFF) to prevent encoding corruption (e.g. ₹ turning into 京)
+ */
+export function exportTeamsToCSV(teams: TeamRecord[], filename = 'DISFRUTAR_2K26_Member_Roster.csv') {
   const headers = [
+    'Team S.No',
+    'Team ID',
+    'Team Name',
+    'Member Role',
+    'Member Full Name (Leader Highlighted)',
+    'Registration No',
+    'Mobile Number',
+    'Department',
+    'Section',
+    'Year',
+    'Residence Type',
+    'Hostel Name',
+    'Room Number',
+    'Warden Name',
+    'Warden Phone',
+    'Payment Status',
+    'Transaction ID',
+    'Amount (₹)',
+    'Payment App',
+    'Submission Date'
+  ];
+
+  const rows: string[][] = [];
+
+  teams.forEach((t, tIdx) => {
+    const teamNumber = tIdx + 1;
+    const activeMembers = t.members.filter(m => m.name.trim() !== '' || m.role === 'Leader');
+
+    activeMembers.forEach((m, mIdx) => {
+      const isLeader = m.role === 'Leader' || mIdx === 0;
+
+      const memberRoleText = isLeader ? '⭐ TEAM LEADER' : m.role.toUpperCase();
+      const memberNameText = isLeader ? `⭐ ${m.name.toUpperCase()} (LEADER)` : m.name;
+
+      rows.push([
+        formatCSVCell(teamNumber),
+        formatCSVCell(t.id),
+        formatCSVCell(t.teamName),
+        formatCSVCell(memberRoleText),
+        formatCSVCell(memberNameText),
+        formatCSVCell(m.registerNumber, true),
+        formatCSVCell(m.phone, true),
+        formatCSVCell(m.department || 'N/A'),
+        formatCSVCell(m.section || 'N/A'),
+        formatCSVCell(m.year || 'N/A'),
+        formatCSVCell(m.residenceType || 'N/A'),
+        formatCSVCell(m.residenceType === 'Hosteller' ? (m.hostelName || 'N/A') : 'N/A (Day Scholar)'),
+        formatCSVCell(m.residenceType === 'Hosteller' ? (m.roomNumber || 'N/A') : 'N/A'),
+        formatCSVCell(m.residenceType === 'Hosteller' ? (m.wardenName || 'N/A') : 'N/A'),
+        formatCSVCell(m.residenceType === 'Hosteller' ? (m.wardenPhone || 'N/A') : 'N/A', m.residenceType === 'Hosteller' && !!m.wardenPhone),
+        formatCSVCell(t.paymentStatus.toUpperCase()),
+        formatCSVCell(t.transactionId, true),
+        formatCSVCell(t.amount),
+        formatCSVCell((t as any).paymentAppUsed || 'UPI / QR Code'),
+        formatCSVCell(t.submittedAt || t.createdAt)
+      ]);
+    });
+  });
+
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  downloadBlob(blob, filename);
+}
+
+/**
+ * 2. ENHANCED TEAM-SUMMARY SIDE-BY-SIDE CSV EXPORT
+ * One row per team with side-by-side member columns (Leader & Member 1-4)
+ */
+export function exportTeamsSummaryToCSV(teams: TeamRecord[], filename = 'DISFRUTAR_2K26_Teams_Summary.csv') {
+  const headers = [
+    'Team S.No',
     'Team ID',
     'Team Name',
     'Member Count',
@@ -17,41 +140,216 @@ export function exportTeamsToCSV(teams: TeamRecord[], filename = 'DISFRUTAR_2K26
     'Leader Reg No',
     'Leader Phone',
     'Leader Dept',
+    'Leader Sec',
+    'Leader Year',
     'Leader Residence',
     'Leader Hostel',
     'Leader Room',
-    'Leader Warden'
+    'Leader Warden Name',
+    'Leader Warden Phone',
+    'Member 1 Name',
+    'Member 1 Reg No',
+    'Member 1 Phone',
+    'Member 1 Dept',
+    'Member 1 Residence',
+    'Member 2 Name',
+    'Member 2 Reg No',
+    'Member 2 Phone',
+    'Member 2 Dept',
+    'Member 2 Residence',
+    'Member 3 Name',
+    'Member 3 Reg No',
+    'Member 3 Phone',
+    'Member 3 Dept',
+    'Member 3 Residence',
+    'Member 4 Name',
+    'Member 4 Reg No',
+    'Member 4 Phone',
+    'Member 4 Dept',
+    'Member 4 Residence'
   ];
 
-  const rows = teams.map(t => {
-    const leader: Partial<MemberData> = t.members[0] || {};
+  const rows = teams.map((t, tIdx) => {
+    const leader = t.members.find(m => m.role === 'Leader') || t.members[0] || {} as Partial<MemberData>;
+    const otherMembers = t.members.filter(m => m !== leader);
+
+    const m1 = otherMembers[0] || {} as Partial<MemberData>;
+    const m2 = otherMembers[1] || {} as Partial<MemberData>;
+    const m3 = otherMembers[2] || {} as Partial<MemberData>;
+    const m4 = otherMembers[3] || {} as Partial<MemberData>;
+
     return [
-      `"${t.id}"`,
-      `"${t.teamName.replace(/"/g, '""')}"`,
-      t.memberCount,
-      `"${t.paymentStatus.toUpperCase()}"`,
-      t.amount,
-      `"${t.transactionId.replace(/"/g, '""')}"`,
-      `"${t.submittedAt}"`,
-      `"${(leader.name || '').replace(/"/g, '""')}"`,
-      `"${(leader.registerNumber || '').replace(/"/g, '""')}"`,
-      `"${(leader.phone || '').replace(/"/g, '""')}"`,
-      `"${(leader.department || '').replace(/"/g, '""')}"`,
-      `"${(leader.residenceType || '').replace(/"/g, '""')}"`,
-      `"${(leader.hostelName || 'N/A').replace(/"/g, '""')}"`,
-      `"${(leader.roomNumber || 'N/A').replace(/"/g, '""')}"`,
-      `"${(leader.wardenName || 'N/A').replace(/"/g, '""')}"`
+      formatCSVCell(tIdx + 1),
+      formatCSVCell(t.id),
+      formatCSVCell(t.teamName),
+      formatCSVCell(t.memberCount),
+      formatCSVCell(t.paymentStatus.toUpperCase()),
+      formatCSVCell(t.amount),
+      formatCSVCell(t.transactionId, true),
+      formatCSVCell(t.submittedAt || t.createdAt),
+
+      // Leader
+      formatCSVCell(`⭐ ${leader.name || 'N/A'}`),
+      formatCSVCell(leader.registerNumber, true),
+      formatCSVCell(leader.phone, true),
+      formatCSVCell(leader.department || 'N/A'),
+      formatCSVCell(leader.section || 'N/A'),
+      formatCSVCell(leader.year || 'N/A'),
+      formatCSVCell(leader.residenceType || 'N/A'),
+      formatCSVCell(leader.hostelName || 'N/A'),
+      formatCSVCell(leader.roomNumber || 'N/A'),
+      formatCSVCell(leader.wardenName || 'N/A'),
+      formatCSVCell(leader.wardenPhone || 'N/A', !!leader.wardenPhone),
+
+      // Member 1
+      formatCSVCell(m1.name || 'N/A'),
+      formatCSVCell(m1.registerNumber, true),
+      formatCSVCell(m1.phone, true),
+      formatCSVCell(m1.department || 'N/A'),
+      formatCSVCell(m1.residenceType || 'N/A'),
+
+      // Member 2
+      formatCSVCell(m2.name || 'N/A'),
+      formatCSVCell(m2.registerNumber, true),
+      formatCSVCell(m2.phone, true),
+      formatCSVCell(m2.department || 'N/A'),
+      formatCSVCell(m2.residenceType || 'N/A'),
+
+      // Member 3
+      formatCSVCell(m3.name || 'N/A'),
+      formatCSVCell(m3.registerNumber, true),
+      formatCSVCell(m3.phone, true),
+      formatCSVCell(m3.department || 'N/A'),
+      formatCSVCell(m3.residenceType || 'N/A'),
+
+      // Member 4
+      formatCSVCell(m4.name || 'N/A'),
+      formatCSVCell(m4.registerNumber, true),
+      formatCSVCell(m4.phone, true),
+      formatCSVCell(m4.department || 'N/A'),
+      formatCSVCell(m4.residenceType || 'N/A')
     ];
   });
 
-  const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadBlob(blob, filename);
+}
+
+/**
+ * 3. STYLED EXCEL SPREADSHEET EXPORT (.xls)
+ * Rich styled HTML/XML table that Excel opens natively with:
+ * - Centered Team Name columns
+ * - Highlighted Team Leader rows in soft gold (#FEF3C7)
+ * - Green/Amber payment status badges
+ * - Text number formatting (mso-number-format:"\@") preventing scientific notation
+ * - Crisp table borders and header styling
+ */
+export function exportTeamsToExcelXML(teams: TeamRecord[], filename = 'DISFRUTAR_2K26_Master_Spreadsheet.xls') {
+  let tableRowsHTML = '';
+
+  teams.forEach((t, tIdx) => {
+    const activeMembers = t.members.filter(m => m.name.trim() !== '' || m.role === 'Leader');
+
+    activeMembers.forEach((m, mIdx) => {
+      const isLeader = m.role === 'Leader' || mIdx === 0;
+      const rowStyle = isLeader ? 'background-color: #FEF3C7; font-weight: 600;' : (tIdx % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;');
+      const roleBadge = isLeader ? '<span style="color: #B45309; font-weight: 800;">⭐ TEAM LEADER</span>' : `<span style="color: #475569;">${m.role}</span>`;
+      const nameHTML = isLeader ? `<strong style="color: #92400E; font-size: 11px;">⭐ ${m.name.toUpperCase()} (LEADER)</strong>` : `<span>${m.name}</span>`;
+      const statusBadge = t.paymentStatus === 'approved' 
+        ? '<span style="background-color: #DCFCE7; color: #15803D; padding: 3px 8px; border-radius: 10px; font-weight: bold;">APPROVED</span>'
+        : '<span style="background-color: #FEF3C7; color: #B45309; padding: 3px 8px; border-radius: 10px; font-weight: bold;">PENDING</span>';
+
+      tableRowsHTML += `
+        <tr style="${rowStyle}">
+          <td style="text-align: center; font-weight: bold; color: #2563EB;">${tIdx + 1}</td>
+          <td style="text-align: center; font-family: monospace; font-weight: bold; mso-number-format:'\\@';">${t.id}</td>
+          <td style="text-align: center; font-weight: bold; color: #0F172A;">${t.teamName}</td>
+          <td style="text-align: center;">${roleBadge}</td>
+          <td>${nameHTML}</td>
+          <td style="font-family: monospace; mso-number-format:'\\@'; font-weight: bold;">${m.registerNumber || 'N/A'}</td>
+          <td style="font-family: monospace; mso-number-format:'\\@'; font-weight: bold; color: #2563EB;">${m.phone || 'N/A'}</td>
+          <td>${m.department || 'N/A'}</td>
+          <td style="text-align: center;">${m.section || 'N/A'}</td>
+          <td style="text-align: center;">${m.year || 'N/A'}</td>
+          <td style="text-align: center;">${m.residenceType || 'N/A'}</td>
+          <td>${m.residenceType === 'Hosteller' ? (m.hostelName || 'N/A') : 'N/A (Day Scholar)'}</td>
+          <td style="text-align: center;">${m.residenceType === 'Hosteller' ? (m.roomNumber || 'N/A') : 'N/A'}</td>
+          <td>${m.residenceType === 'Hosteller' ? (m.wardenName || 'N/A') : 'N/A'}</td>
+          <td style="font-family: monospace; mso-number-format:'\\@';">${m.residenceType === 'Hosteller' ? (m.wardenPhone || 'N/A') : 'N/A'}</td>
+          <td style="text-align: center;">${statusBadge}</td>
+          <td style="font-family: monospace; mso-number-format:'\\@';">${t.transactionId}</td>
+          <td style="text-align: right; font-weight: bold; color: #166534;">₹${t.amount}</td>
+          <td style="text-align: center;">${(t as any).paymentAppUsed || 'UPI'}</td>
+          <td style="font-size: 10px; color: #64748B;">${t.submittedAt || t.createdAt}</td>
+        </tr>
+      `;
+    });
+  });
+
+  const excelHTML = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <!--[if gte mso 9]>
+        <xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>DISFRUTAR 2K26 Roster</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayGridlines/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml>
+        <![endif]-->
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; }
+          table { border-collapse: collapse; width: 100%; }
+          th { background-color: #1E1B4B; color: #FFFFFF; font-weight: bold; text-transform: uppercase; font-size: 10px; padding: 10px 8px; border: 1px solid #334155; text-align: center; }
+          td { border: 1px solid #CBD5E1; padding: 7px 10px; vertical-align: middle; }
+        </style>
+      </head>
+      <body>
+        <h2>DISFRUTAR 2K26 - Official Master Event Roster</h2>
+        <p><strong>Generated:</strong> ${new Date().toLocaleString()} | Total Teams: ${teams.length}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Team S.No</th>
+              <th>Team ID</th>
+              <th>Team Name</th>
+              <th>Member Role</th>
+              <th>Member Name (Leader Highlighted)</th>
+              <th>Registration No</th>
+              <th>Mobile Number</th>
+              <th>Department</th>
+              <th>Section</th>
+              <th>Year</th>
+              <th>Residence Type</th>
+              <th>Hostel Name</th>
+              <th>Room Number</th>
+              <th>Warden Name</th>
+              <th>Warden Phone</th>
+              <th>Payment Status</th>
+              <th>Transaction ID</th>
+              <th>Amount (₹)</th>
+              <th>Payment App</th>
+              <th>Submission Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHTML}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+
+  const blob = new Blob([excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  downloadBlob(blob, filename);
 }
 
 /**
